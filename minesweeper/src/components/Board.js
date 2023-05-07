@@ -2,11 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Text, Button, Box, Flex } from '@chakra-ui/react'
 import { BsEmojiSmile, BsEmojiSunglasses, BsEmojiDizzy } from 'react-icons/bs'
 import Solver from './solver.js'
+import loseAudio from './../assets/Lose.mp3';
+import winAudio from './../assets/Win.mp3';
+import one from './../assets/1.mp3';
+import two from './../assets/2.mp3';
+import three from './../assets/3.mp3';
+import four from './../assets/4.mp3';
+import five from './../assets/5.mp3';
+import six from './../assets/6.mp3';
+import seven from './../assets/7.mp3';
+import eight from './../assets/8.mp3';
 
 const Board = () => {
     // initialize the board state
     const [board, setBoard] = useState([]);
-    const [level, setLevel] = useState('beginner');
+    const [level, setLevel] = useState('intermediate');
     const [algorithm, setAlgorithm] = useState('BFS');
     // const [isCustom, setIsCustom] = useState(false);
     // const [custom, setCustom] = useState({ width: 0, height: 0, mines: 0 });
@@ -18,13 +28,23 @@ const Board = () => {
     const [gameOver, setGameOver] = useState(false);
     const [win, setWin] = useState(false);
 
-
     // initialize the flags count state
     const [flagsCount, setFlagsCount] = useState(0);
 
     //initialize timer
     const [timer, setTimer] = useState(0);
 
+    //initialize sound
+    const playLose = () => new Audio(loseAudio).play();
+    const playWin = () => new Audio(winAudio).play();
+    const playOne = () => new Audio(one).play();
+    const playTwo = () => new Audio(two).play();
+    const playThree = () => new Audio(three).play();
+    const playFour = () => new Audio(four).play();
+    const playFive = () => new Audio(five).play();
+    const playSix = () => new Audio(six).play();
+    const playSeven = () => new Audio(seven).play();
+    const playEight = () => new Audio(eight).play();
 
     // generate the board with mines and counts
     const generateBoard = (rows, cols, mines) => {
@@ -118,6 +138,7 @@ const Board = () => {
 
         // if the clicked cell is a mine, game over
         if (board[row][col].isMine) {
+            // playLose()
             setGameOver(true);
             board[row][col].isRed = true;
 
@@ -131,10 +152,22 @@ const Board = () => {
             // reveal the clicked cell and all adjacent cells with count=0
             revealCellBFS(row, col);
             // check if player wins
-            checkWin();
-            console.log(Solver(board))
+            let cellAction = Solver(board)
+            if (cellAction)
+                console.log(cellAction)
+            if (cellAction && cellAction?.type === 'flag') {
+                cellAction.cells.forEach(tupple => {
+                    board[tupple[0]][tupple[1]].isFlagged = true
+                })
+                setFlagsCount(flagsCount + cellAction.cells.length)
+            }
+            if (cellAction && cellAction?.type === 'reveal') {
+                cellAction.cells.forEach(tupple => board[tupple[0]][tupple[1]].isRevealed = true)
+            }
+            checkWin()
         }
     };
+
 
     // handle cell right-click (flag)
     const handleFlag = (event, row, col) => {
@@ -152,7 +185,6 @@ const Board = () => {
             const delta = cell.isFlagged ? 1 : -1;
             setFlagsCount(flagsCount + delta);
         }
-        console.log(Solver(board))
     };
 
     // reveal a cell and recursively reveal all adjacent cells with count=0
@@ -164,7 +196,25 @@ const Board = () => {
             if (!cell.isRevealed) {
                 // reveal the cell
                 const newBoard = [...board];
-                newBoard[row][col].isRevealed = true;
+                cell.isRevealed = true;
+                if (cell.count === 1)
+                    playOne()
+                else if (cell.count === 2)
+                    playTwo()
+                else if (cell.count === 3)
+                    playThree()
+                else if (cell.count === 4)
+                    playFour()
+                else if (cell.count === 5)
+                    playFive()
+                else if (cell.count === 6)
+                    playSix()
+                else if (cell.count === 7)
+                    playSeven()
+                else if (cell.count === 8)
+                    playEight()
+                else
+                    ;
                 setBoard(newBoard);
                 // if the cell has count 0, add adjacent cells to queue
                 if (cell.count === 0) {
@@ -194,6 +244,7 @@ const Board = () => {
         // check if the player has revealed all non-mine cells
         if (flaggedCount === mines) {
             setWin(true);
+            // playWin()
         }
     };
 
@@ -213,6 +264,7 @@ const Board = () => {
                 justifyContent={'center'}
                 alignItems='center'
                 cursor={!gameOver && "pointer"}
+                onHover={() => <Text>{row + " " + col}</Text>}
             >
                 {isRevealed && !isMine && count > 0 ? (
                     <Text fontWeight="bold" fontSize="2xl" color={count === 1 ? 'blue' : count === 2 ? 'green' : count === 3 ? 'red' : count === 4 ? 'darkblue' : count === 5 ? 'darkred' : count === 6 ? 'cyan' : count === 7 ? 'black' : 'lighgray'}>{count}</Text>
@@ -280,7 +332,7 @@ const Board = () => {
                         <Flex key={rowIndex} className="row">
                             {row.map((cell, colIndex) =>
                                 <Cell
-                                    key={rowIndex + ' ' + colIndex}
+                                    key={rowIndex + ', ' + colIndex}
                                     row={rowIndex}
                                     col={colIndex}
                                     isMine={cell.isMine}
