@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, Button, Box, Flex, Tooltip } from '@chakra-ui/react'
+import { Text, Button, Box, Flex, Tooltip, useToast } from '@chakra-ui/react'
 import { BsEmojiSmile, BsEmojiSunglasses, BsEmojiDizzy } from 'react-icons/bs'
 
 import Solver from './solver.js'
@@ -37,6 +37,10 @@ const Board = () => {
 
     //initialize timer
     const [timer, setTimer] = useState(0);
+
+    //initialize toast
+    const toast = useToast()
+
 
     //initialize sound
     const playLose = () => new Audio(loseAudio).play();
@@ -158,9 +162,18 @@ const Board = () => {
             }
         } else {
             // reveal the clicked cell and all adjacent cells with count=0
-            revealCellBFS(row, col);
+            if (algorithm === 'BFS')
+                revealCellBFS(row, col)
+            else revealCellDFS(row, col)
             // check if player wins
             let cellAction = Solver(board)
+            if (!cellAction) {
+                console.log(cellAction)
+                toast({
+                    title: 'Solver cannot detect any more patterns. Try to open a cell randomly.',
+                    status: 'info',
+                })
+            }
             if (cellAction)
                 console.log(cellAction)
             if (cellAction && cellAction?.type === 'flag') {
@@ -170,7 +183,11 @@ const Board = () => {
                 setFlagsCount(flagsCount + cellAction.cells.length)
             }
             if (cellAction && cellAction?.type === 'reveal') {
-                cellAction.cells.forEach(tupple => revealCellBFS(tupple[0], tupple[1]))
+                cellAction.cells.forEach(tupple => {
+                    if (algorithm === 'BFS')
+                        revealCellBFS(tupple[0], tupple[1])
+                    else revealCellDFS(tupple[0], tupple[1])
+                })
             }
             checkWin()
         }
@@ -195,7 +212,7 @@ const Board = () => {
         }
     };
 
-    // reveal a cell and recursively reveal all adjacent cells with count=0
+    // reveal a cell and recursively reveal all adjacent cells with count=0, BFS approach
     const revealCellBFS = (row, col) => {
         const queue = [{ row, col }];
         while (queue.length > 0) {
@@ -206,27 +223,19 @@ const Board = () => {
                 const newBoard = [...board];
                 cell.isRevealed = true;
                 setRevealedCount(revealedCount + 1)
-                if (cell.count === 1)
-                    playOne()
-                else if (cell.count === 2)
-                    playTwo()
-                else if (cell.count === 3)
-                    playThree()
-                else if (cell.count === 4)
-                    playFour()
-                else if (cell.count === 5)
-                    playFive()
-                else if (cell.count === 6)
-                    playSix()
-                else if (cell.count === 7)
-                    playSeven()
-                else if (cell.count === 8)
-                    playEight()
-                else
-                    ;
+                if (cell.count === 1) playOne()
+                else if (cell.count === 2) playTwo()
+                else if (cell.count === 3) playThree()
+                else if (cell.count === 4) playFour()
+                else if (cell.count === 5) playFive()
+                else if (cell.count === 6) playSix()
+                else if (cell.count === 7) playSeven()
+                else if (cell.count === 8) playEight()
+                else;
                 setBoard(newBoard);
                 // if the cell has count 0, add adjacent cells to queue
                 if (cell.count === 0) {
+                    console.log(row + " " + col)
                     for (let i = Math.max(row - 1, 0); i <= Math.min(row + 1, rows - 1); i++) {
                         for (let j = Math.max(col - 1, 0); j <= Math.min(col + 1, cols - 1); j++) {
                             if (i !== row || j !== col) {
@@ -238,6 +247,43 @@ const Board = () => {
             }
         }
     };
+
+    // reveal a cell and recursively reveal all adjacent cells with count=0, DFS approach
+    const revealCellDFS = (row, col) => {
+        const stack = [{ row, col }];
+        while (stack.length > 0) {
+            const { row, col } = stack.pop();
+            const cell = board[row][col];
+            if (!cell.isRevealed) {
+                // reveal the cell
+                const newBoard = [...board];
+                cell.isRevealed = true;
+                setRevealedCount(revealedCount + 1);
+                if (cell.count === 1) playOne();
+                else if (cell.count === 2) playTwo();
+                else if (cell.count === 3) playThree();
+                else if (cell.count === 4) playFour();
+                else if (cell.count === 5) playFive();
+                else if (cell.count === 6) playSix();
+                else if (cell.count === 7) playSeven();
+                else if (cell.count === 8) playEight();
+                else;
+                setBoard(newBoard);
+                // if the cell has count 0, add adjacent cells to stack
+                if (cell.count === 0) {
+                    console.log(row + " " + col)
+                    for (let i = Math.max(row - 1, 0); i <= Math.min(row + 1, rows - 1); i++) {
+                        for (let j = Math.max(col - 1, 0); j <= Math.min(col + 1, cols - 1); j++) {
+                            if (i !== row || j !== col) {
+                                stack.push({ row: i, col: j });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
 
     // check if the player wins
     const checkWin = () => {
