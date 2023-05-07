@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Text, Button, Box, Flex } from '@chakra-ui/react'
+import { Text, Button, Box, Flex, Tooltip, useToast } from '@chakra-ui/react'
 import { BsEmojiSmile, BsEmojiSunglasses, BsEmojiDizzy } from 'react-icons/bs'
+
 import Solver from './solver.js'
 import loseAudio from './../assets/Lose.mp3';
 import winAudio from './../assets/Win.mp3';
@@ -31,8 +32,15 @@ const Board = () => {
     // initialize the flags count state
     const [flagsCount, setFlagsCount] = useState(0);
 
+    //revealed count
+    const [revealedCount, setRevealedCount] = useState(0);
+
     //initialize timer
     const [timer, setTimer] = useState(0);
+
+    //initialize toast
+    const toast = useToast()
+
 
     //initialize sound
     const playLose = () => new Audio(loseAudio).play();
@@ -139,6 +147,10 @@ const Board = () => {
         // if the clicked cell is a mine, game over
         if (board[row][col].isMine) {
             // playLose()
+            if (revealedCount === 0) {
+                setBoard(generateBoard(rows, cols, mines))
+                return
+            }
             setGameOver(true);
             board[row][col].isRed = true;
 
@@ -150,9 +162,18 @@ const Board = () => {
             }
         } else {
             // reveal the clicked cell and all adjacent cells with count=0
-            revealCellBFS(row, col);
+            if (algorithm === 'BFS')
+                revealCellBFS(row, col)
+            else revealCellDFS(row, col)
             // check if player wins
             let cellAction = Solver(board)
+            if (!cellAction) {
+                console.log(cellAction)
+                toast({
+                    title: 'Solver cannot detect any more patterns. Try to open a cell randomly.',
+                    status: 'info',
+                })
+            }
             if (cellAction)
                 console.log(cellAction)
             if (cellAction && cellAction?.type === 'flag') {
@@ -162,7 +183,11 @@ const Board = () => {
                 setFlagsCount(flagsCount + cellAction.cells.length)
             }
             if (cellAction && cellAction?.type === 'reveal') {
-                cellAction.cells.forEach(tupple => board[tupple[0]][tupple[1]].isRevealed = true)
+                cellAction.cells.forEach(tupple => {
+                    if (algorithm === 'BFS')
+                        revealCellBFS(tupple[0], tupple[1])
+                    else revealCellDFS(tupple[0], tupple[1])
+                })
             }
             checkWin()
         }
@@ -187,7 +212,7 @@ const Board = () => {
         }
     };
 
-    // reveal a cell and recursively reveal all adjacent cells with count=0
+    // reveal a cell and recursively reveal all adjacent cells with count=0, BFS approach
     const revealCellBFS = (row, col) => {
         const queue = [{ row, col }];
         while (queue.length > 0) {
@@ -197,27 +222,20 @@ const Board = () => {
                 // reveal the cell
                 const newBoard = [...board];
                 cell.isRevealed = true;
-                if (cell.count === 1)
-                    playOne()
-                else if (cell.count === 2)
-                    playTwo()
-                else if (cell.count === 3)
-                    playThree()
-                else if (cell.count === 4)
-                    playFour()
-                else if (cell.count === 5)
-                    playFive()
-                else if (cell.count === 6)
-                    playSix()
-                else if (cell.count === 7)
-                    playSeven()
-                else if (cell.count === 8)
-                    playEight()
-                else
-                    ;
+                setRevealedCount(revealedCount + 1)
+                if (cell.count === 1) playOne()
+                else if (cell.count === 2) playTwo()
+                else if (cell.count === 3) playThree()
+                else if (cell.count === 4) playFour()
+                else if (cell.count === 5) playFive()
+                else if (cell.count === 6) playSix()
+                else if (cell.count === 7) playSeven()
+                else if (cell.count === 8) playEight()
+                else;
                 setBoard(newBoard);
                 // if the cell has count 0, add adjacent cells to queue
                 if (cell.count === 0) {
+                    console.log(row + " " + col)
                     for (let i = Math.max(row - 1, 0); i <= Math.min(row + 1, rows - 1); i++) {
                         for (let j = Math.max(col - 1, 0); j <= Math.min(col + 1, cols - 1); j++) {
                             if (i !== row || j !== col) {
@@ -229,6 +247,43 @@ const Board = () => {
             }
         }
     };
+
+    // reveal a cell and recursively reveal all adjacent cells with count=0, DFS approach
+    const revealCellDFS = (row, col) => {
+        const stack = [{ row, col }];
+        while (stack.length > 0) {
+            const { row, col } = stack.pop();
+            const cell = board[row][col];
+            if (!cell.isRevealed) {
+                // reveal the cell
+                const newBoard = [...board];
+                cell.isRevealed = true;
+                setRevealedCount(revealedCount + 1);
+                if (cell.count === 1) playOne();
+                else if (cell.count === 2) playTwo();
+                else if (cell.count === 3) playThree();
+                else if (cell.count === 4) playFour();
+                else if (cell.count === 5) playFive();
+                else if (cell.count === 6) playSix();
+                else if (cell.count === 7) playSeven();
+                else if (cell.count === 8) playEight();
+                else;
+                setBoard(newBoard);
+                // if the cell has count 0, add adjacent cells to stack
+                if (cell.count === 0) {
+                    console.log(row + " " + col)
+                    for (let i = Math.max(row - 1, 0); i <= Math.min(row + 1, rows - 1); i++) {
+                        for (let j = Math.max(col - 1, 0); j <= Math.min(col + 1, cols - 1); j++) {
+                            if (i !== row || j !== col) {
+                                stack.push({ row: i, col: j });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
 
     // check if the player wins
     const checkWin = () => {
@@ -252,28 +307,29 @@ const Board = () => {
 
         // render the cell
         return (
-            <Flex
-                onClick={() => onClick(row, col)}
-                onContextMenu={(event) => onRightClick(event, row, col)}
-                height="2em" width="2em"
-                backgroundColor={'#C0C0C0'}
-                borderTop={!isRevealed ? '4px solid white' : '1px solid gray'}
-                borderLeft={!isRevealed ? '4px solid white' : '1px solid gray'}
-                borderBottom={!isRevealed ? '4px solid #808080' : ''}
-                borderRight={!isRevealed ? '4px solid #808080' : '1px solid gray'}
-                justifyContent={'center'}
-                alignItems='center'
-                cursor={!gameOver && "pointer"}
-                onHover={() => <Text>{row + " " + col}</Text>}
-            >
-                {isRevealed && !isMine && count > 0 ? (
-                    <Text fontWeight="bold" fontSize="2xl" color={count === 1 ? 'blue' : count === 2 ? 'green' : count === 3 ? 'red' : count === 4 ? 'darkblue' : count === 5 ? 'darkred' : count === 6 ? 'cyan' : count === 7 ? 'black' : 'lighgray'}>{count}</Text>
-                ) : isFlagged ? (
-                    <Text fontWeight="bold" fontSize="2xl">&#x2691;</Text>
-                ) : isRevealed && isMine ? (
-                    <Text fontWeight="bold" backgroundColor={isRed && 'red'} fontSize="2xl">&#x1f4a3;</Text>
-                ) : <Text fontWeight="bold" fontSize="2xl" />}
-            </Flex>
+            <Tooltip label={row + ', ' + col} placement='top'>
+                <Flex
+                    onClick={() => onClick(row, col)}
+                    onContextMenu={(event) => onRightClick(event, row, col)}
+                    height="2em" width="2em"
+                    backgroundColor={'#C0C0C0'}
+                    borderTop={!isRevealed ? '4px solid white' : '1px solid gray'}
+                    borderLeft={!isRevealed ? '4px solid white' : '1px solid gray'}
+                    borderBottom={!isRevealed ? '4px solid #808080' : ''}
+                    borderRight={!isRevealed ? '4px solid #808080' : '1px solid gray'}
+                    justifyContent={'center'}
+                    alignItems='center'
+                    cursor={!gameOver && "pointer"}
+                >
+                    {isRevealed && !isMine && count > 0 ? (
+                        <Text fontWeight="bold" fontSize="2xl" color={count === 1 ? 'blue' : count === 2 ? 'green' : count === 3 ? 'red' : count === 4 ? 'darkblue' : count === 5 ? 'darkred' : count === 6 ? 'cyan' : count === 7 ? 'black' : 'lighgray'}>{count}</Text>
+                    ) : isFlagged ? (
+                        <Text fontWeight="bold" fontSize="2xl">&#x2691;</Text>
+                    ) : isRevealed && isMine ? (
+                        <Text fontWeight="bold" backgroundColor={isRed && 'red'} fontSize="2xl">&#x1f4a3;</Text>
+                    ) : <Text fontWeight="bold" fontSize="2xl" />}
+                </Flex>
+            </Tooltip >
         );
     };
 
@@ -317,15 +373,16 @@ const Board = () => {
                 <Flex padding="0.8em" justifyContent="space-between" borderRight="6px solid white" borderBottom="6px solid white" borderLeft="6px solid #808080" borderTop="6px solid #808080" marginBottom="0.8em">
                     <Text fontSize="4xl" backgroundColor="black" fontFamily="monospace" color="red" borderRight="3px solid white" borderBottom="3px solid white" borderLeft="3px solid #808080" borderTop="3px solid #808080">{mines - flagsCount < 0 ? '0' + (mines - flagsCount) : mines - flagsCount < 10 ? '00' + (mines - flagsCount) : '0' + (mines - flagsCount).toString()}</Text>
                     <Box border="2px solid #808080" cursor="pointer" onClick={() => {
+                        setBoard(generateBoard(rows, cols, mines))
                         setFlagsCount(0)
+                        setRevealedCount(0)
                         setTimer(0)
                         setGameOver(false)
-                        setBoard(generateBoard(rows, cols, mines))
                         setWin(false)
                     }}>
                         <Text padding="0.1em" fontSize="3.5em" color="black" borderLeft="4px solid white" borderTop="4px solid white" borderRight="4px solid #808080" borderBottom="4px solid #808080" as={gameOver ? BsEmojiDizzy : win ? BsEmojiSunglasses : BsEmojiSmile} />
                     </Box>
-                    <Text fontSize="4xl" fontFamily="monospace" backgroundColor="black" color="red" borderRight="3px solid white" borderBottom="3px solid white" borderLeft="3px solid #808080" borderTop="3px solid #808080">{timer === 0 ? '000' : timer < 10 ? '00' + timer : timer < 100 ? '0' : timer}</Text>
+                    <Text fontSize="4xl" fontFamily="monospace" backgroundColor="black" color="red" borderRight="3px solid white" borderBottom="3px solid white" borderLeft="3px solid #808080" borderTop="3px solid #808080">{timer === 0 ? '000' : timer < 10 ? '00' + timer : timer >= 10 ? '0' + timer : timer}</Text>
                 </Flex>
                 <Flex flexDir="column" borderRight="6px solid white" borderBottom="6px solid white" borderLeft="6px solid #808080" borderTop="6px solid #808080">
                     {board.map((row, rowIndex) =>
