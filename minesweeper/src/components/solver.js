@@ -296,7 +296,31 @@ const Solver = (inputBoard) => {
                     }
 
                 }
+            }else if (board[i][j] === '2' && board[i][j + 1] === '2' && board[i][j + 2] === '2' && i >= 0 && i < rows && j >= 0 && j + 2 < cols) {
+                const firstNeighbors = getNeighbors(i, j, rows, cols);
+                const middleNeighbors = getNeighbors(i, j + 1, rows, cols);
+                const lastNeighbors = getNeighbors(i, j + 2, rows, cols);
+                
+                // Check if cells above are empty
+                if (firstNeighbors.filter(neighbor => neighbor[0] === i - 1 && neighbor[1] === j && board[neighbor[0]][neighbor[1]] === 'E').length === 2 && middleNeighbors.filter(neighbor => neighbor[0] === i - 1 && neighbor[1] === j + 1 && board[neighbor[0]][neighbor[1]] === 'E').length === 2 && lastNeighbors.filter(neighbor => neighbor[0] === i - 1 && neighbor[1] === j + 2 && board[neighbor[0]][neighbor[1]] === 'E').length === 2) {
+                    // Check if cells below are empty
+                    if (firstNeighbors.filter(neighbor => neighbor[0] === i + 1 && neighbor[1] === j && board[neighbor[0]][neighbor[1]] === 'E').length === 2 && middleNeighbors.filter(neighbor => neighbor[0] === i + 1 && neighbor[1] === j + 1 && board[neighbor[0]][neighbor[1]] === 'E').length === 2 && lastNeighbors.filter(neighbor => neighbor[0] === i + 1 && neighbor[1] === j + 2 && board[neighbor[0]][neighbor[1]] === 'E').length === 2) {
+                        const toFlag = firstNeighbors.filter(neighbor => neighbor[0] === i + 1 && neighbor[1] === j && board[neighbor[0]][neighbor[1]] === 'E')
+                        const toFlagTwo = firstNeighbors.filter(neighbor => neighbor[0] === i - 1 && neighbor[1] === j && board[neighbor[0]][neighbor[1]] === 'E')
+                        toFlag.push(middleNeighbors.filter(neighbor => neighbor[0] === i + 1 && neighbor[1] === j + 1 && board[neighbor[0]][neighbor[1]] === 'E')[0])
+                        toFlagTwo.push(middleNeighbors.filter(neighbor => neighbor[0] === i - 1 && neighbor[1] === j + 1 && board[neighbor[0]][neighbor[1]] === 'E')[0])
+                        toFlag.push(lastNeighbors.filter(neighbor => neighbor[0] === i + 1 && neighbor[1] === j + 2 && board[neighbor[0]][neighbor[1]] === 'E')[0])
+                        toFlagTwo.push(lastNeighbors.filter(neighbor => neighbor[0] === i - 1 && neighbor[1] === j + 2 && board[neighbor[0]][neighbor[1]] === 'E')[0])
+                        if (toFlag.length === 2 && toFlagTwo.length === 2) {
+                            move = { type: 'flag', cells: toFlag.concat(toFlagTwo) }
+                            return move
+                        }
+                    }
+                }
             }
+            
+            
+            
             // reveal if one of the adj cells is empty (its a number so its safe)
             else
                 if (board[i][j] === '-') {
