@@ -296,6 +296,38 @@ const Solver = (inputBoard) => {
                     }
 
                 }
+            }//2-3-3-1
+            else if (board[i][j] === '2' && board[i][j + 1] === '3' && board[i][j + 2] === '3' && board[i][j + 3] === '1' && i >= 0 && i < rows && j >= 0 && j + 3 < cols) {
+                const firstNeighbors = getNeighbors(i, j, rows, cols);
+                const middleNeighbors = getNeighbors(i, j + 1, rows, cols);
+                const middleTwoNeighbors = getNeighbors(i, j + 2, rows, cols);
+                const lastNeighbors = getNeighbors(i, j + 3, rows, cols);
+                // nqs cell bellow empty
+                if (firstNeighbors.filter(neighbor => neighbor[0] === i + 1 && neighbor[1] === j && board[neighbor[0]][neighbor[1]] === 'E').length === 1 && middleNeighbors.filter(neighbor => neighbor[0] === i + 1 && neighbor[1] === j + 1 && board[neighbor[0]][neighbor[1]] === 'E').length === 1 && middleTwoNeighbors.filter(neighbor => neighbor[0] === i + 1 && neighbor[1] === j + 2 && board[neighbor[0]][neighbor[1]] === 'E').length === 1 && lastNeighbors.filter(neighbor => neighbor[0] === i + 1 && neighbor[1] === j + 3 && board[neighbor[0]][neighbor[1]] === 'E').length === 1) {
+                    // nese ne top jane empty
+                    if (firstNeighbors.filter(neighbor => neighbor[0] === i - 1 && neighbor[1] === j && board[neighbor[0]][neighbor[1]] === '-').length === 1 && middleNeighbors.filter(neighbor => neighbor[0] === i - 1 && neighbor[1] === j + 1 && board[neighbor[0]][neighbor[1]] === '-').length === 1 && middleTwoNeighbors.filter(neighbor => neighbor[0] === i - 1 && neighbor[1] === j + 2 && board[neighbor[0]][neighbor[1]] === '-').length === 1) {
+                        const toFlag = firstNeighbors.filter(neighbor => neighbor[0] === i - 1 && neighbor[1] === j && (board[neighbor[0]][neighbor[1]] === '-'))
+                        const toFlagTwo = lastNeighbors.filter(neighbor => neighbor[0] === i - 1 && neighbor[1] === j + 3 && (board[neighbor[0]][neighbor[1]] === '-'))
+                        toFlag.push(toFlagTwo[0])
+                        if (toFlag.length === 2) {
+                            move = { type: 'flag', cells: toFlag }
+                            return move
+                        }
+                    }
+                }
+                // if empty cell is above
+                if (firstNeighbors.filter(neighbor => neighbor[0] === i - 1 && neighbor[1] === j && board[neighbor[0]][neighbor[1]] === 'E').length === 1 && middleNeighbors.filter(neighbor => neighbor[0] === i - 1 && neighbor[1] === j + 1 && board[neighbor[0]][neighbor[1]] === 'E').length === 1 && middleTwoNeighbors.filter(neighbor => neighbor[0] === i - 1 && neighbor[1] === j + 2 && board[neighbor[0]][neighbor[1]] === 'E').length === 1 && lastNeighbors.filter(neighbor => neighbor[0] === i - 1 && neighbor[1] === j + 3 && board[neighbor[0]][neighbor[1]] === 'E').length === 1) {
+            // if bottom cells are empty
+            if (firstNeighbors.filter(neighbor => neighbor[0] === i + 4 && neighbor[1] === j && board[neighbor[0]][neighbor[1]] === '-').length === 1 && middleNeighbors.filter(neighbor => neighbor[0] === i + 4 && neighbor[1] === j + 1 && board[neighbor[0]][neighbor[1]] === '-').length === 1 && middleTwoNeighbors.filter(neighbor => neighbor[0] === i + 4 && neighbor[1] === j + 2 && board[neighbor[0]][neighbor[1]] === '-').length === 1) {
+            const toFlag = firstNeighbors.filter(neighbor => neighbor[0] === i + 4 && neighbor[1] === j && (board[neighbor[0]][neighbor[1]] === '-'))
+            const toFlagTwo = lastNeighbors.filter(neighbor => neighbor[0] === i + 4 && neighbor[1] === j + 3 && (board[neighbor[0]][neighbor[1]] === '-'))
+            toFlag.push(toFlagTwo[0])
+            if (toFlag.length === 2) {
+            move = { type: 'flag', cells: toFlag }
+            return move
+            }
+            }
+            }
             }
             // reveal if one of the adj cells is empty (its a number so its safe)
             else
