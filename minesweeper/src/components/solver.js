@@ -354,17 +354,19 @@ const Solver = (inputBoard) => {
     }
 }
 
-            if (board[i][j] === '1' && board[i][j + 1] === '1' && i >= 0 && i < rows && j >= 0 ) {
-             // nqs qelizat poshte 11-shit jon empty
-            if (board[i+1][j] === 'E' && board[i+1][j+1] === 'E' && board[i+1][j+2] === 'E'){
-             // nqs qelizat nalt 11-shit sjon qel hala
-            if (board[i-1][j] === '-' && board[i-1][j+1] === '-' && board[i-1][j+2] === '-') {
-            const toFlag = [[i-1, j], [i-1, j+1], [i-1, j+2]];
-          
+             else if (board[i][j] === '1' && board[i][j-1] != '-' && board[i][j-1] != 'F' && board[i][j + 1] === '1' && i >= 0 && i < rows && j >= 0 && j + 1 < cols) {
+    // nqs qelizat poshte 11-shit jon empty
+  if (board[i+1][j] === 'E' && board[i+1][j+1] === 'E'){
+      // nqs qelizat nalt 11-shit sjon qel hala
+      if (board[i-1][j] === '-' && board[i-1][j+1] === '-' && board[i-1][j+2] === '-') {
+          const toReveal = [[i-1, j+2]];
+          if (toReveal.length === 1) {
+              move = { type: 'reveal', cells: toReveal }
+              return move
           }
       }
   }
-
+}
 
 
 export default Solver
