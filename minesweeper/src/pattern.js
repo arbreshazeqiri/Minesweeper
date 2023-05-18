@@ -259,36 +259,6 @@ const Solver = (inputBoard) => {
                     }
                 }
             }
-        //2-3-3-1 pattern horizontal 
-        else if(board, i, j, rows, cols) {
-                if (
-                  board[i][j] === '2' &&
-                  board[i][j + 1] === '3' &&
-                  board[i][j + 2] === '3' &&
-                  board[i][j + 3] === '1' &&
-                  i >= 0 && i < rows && j >= 0 && j + 3 < cols
-                ) {
-                  if (
-                    board[i - 1][j] === '-' &&
-                    board[i - 1][j + 1] === '-' &&
-                    board[i - 1][j + 2] === '-' &&
-                    board[i - 1][j + 3] === '-'
-                  ) {
-                    if (
-                      board[i + 1][j] === 'E' &&
-                      board[i + 1][j + 1] === 'E' &&
-                      board[i + 1][j + 2] === 'E' &&
-                      board[i + 1][j + 3] === 'E'
-                    ) {
-                      const toFlag = [[i - 1, j], [i - 1, j + 1], [i - 1, j + 2], [i - 1, j + 3]];
-                      if (toFlag.length === 4) {
-                        const move = { type: 'flag', cells: toFlag };
-                        return move;
-                      }
-                    }
-                  }
-                }
-              }       
             function getNeighbors(i, j, rows, cols) {
               const deltas = [-1, 0, 1];
               const neighbors = [];
