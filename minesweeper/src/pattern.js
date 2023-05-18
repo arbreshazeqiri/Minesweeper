@@ -231,32 +231,33 @@ const Solver = (inputBoard) => {
                   move = { type: 'reveal', cells: unrevealed.filter(unrev => board[unrev[0]][unrev[1]] === '-') }
                   return move
               }
-            } //2-3-3-1 vertical 
-            else if (board, i, j, rows, cols) {
-              if (
-                board[i][j] === '1' &&
-                board[i][j + 1] === '2' &&
-                board[i][j + 2] === '1' &&
-                i >= 0 && i < rows && j >= 0 && j + 2 < cols
-              ) {
-                if (
-                  board[i + 1][j] === 'E' &&
-                  board[i + 1][j + 1] === 'E' &&
-                  board[i + 1][j + 2] === 'E'
-                ) {
-                  if (
-                    board[i - 1][j] === '-' &&
-                    board[i - 1][j + 1] === '-' &&
-                    board[i - 1][j + 2] === '-'
-                  ) {
-                    const toFlag = [[i - 1, j], [i - 1, j + 2]];
-                    if (toFlag.length === 2) {
-                      const move = { type: 'flag', cells: toFlag };
-                      return move;
+            } // 2-3-3-1 pattern vertical
+            else if (
+                board[i][j] === '2' &&
+                board[i + 1][j] === '3' &&
+                board[i + 2][j] === '3' &&
+                board[i + 3][j] === '1' &&
+                i >= 0 &&
+                i + 3 < rows &&
+                j >= 0 &&
+                j < cols
+            ) {
+                
+                if (board[i][j + 1] === '-' && board[i + 1][j + 1] === '-' && board[i + 2][j + 1] === '-' && board[i + 3][j + 1] === '-') {
+                   
+                    if (
+                        board[i][j - 1] !== '-' && board[i][j - 1] !== 'F'
+                        && board[i + 1][j - 1] === 'F'
+                        && board[i + 2][j - 1] !== '-' && board[i + 2][j - 1] !== 'F'
+                        && board[i + 3][j - 1] !== '-' && board[i + 3][j - 1] !== 'F'
+                    ) {
+                        const toFlag = [[i + 1, j + 1], [i + 2, j + 1]];
+                        if (toFlag.length === 2) {
+                            move = { type: 'flag', cells: toFlag };
+                            return move;
+                        }
                     }
-                  }
                 }
-              }
             }
         //2-3-3-1 pattern horizontal 
         else if(board, i, j, rows, cols) {
