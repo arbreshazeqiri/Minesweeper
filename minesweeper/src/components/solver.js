@@ -301,7 +301,7 @@ const Solver = (inputBoard) => {
                 else if (board[i][j] === '1' && board[i][j + 1] === '2' && board[i][j + 2] === '2' && board[i][j + 3] === '2' && i >= 0 && i < rows && j >= 0 && j + 3 < cols) {
                     const extraNeighbors = getNeighbors(i, j + 3, rows, cols);
                         // e shtojme kushtin nqs 1shi ska kojshi t djathte ose kojshia i vet i djatht osht i qelt
-                        if (board[i][j - 1] != '-' && board[i][j - 1] != 'F') {
+                        if (board[i][j - 1] !== '-' && board[i][j - 1] !== 'F') {
                             //nqs nalt jon tpaqelt
                             if (board[i - 1][j] === '-' && board[i - 1][j + 1] === '-' && board[i - 1][j + 2] === '-' && board[i - 1][j + 3] === '-') {
                                 // nqs poshte tyne jon empty e per 2shin poshte mu kon i qelt
