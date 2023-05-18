@@ -324,34 +324,8 @@ const Solver = (inputBoard) => {
                     }
                 }
             }
-                // 2-3-3-1 pattern vertical
-            else if (
-                            board[i][j] === '2' &&
-                            board[i + 1][j] === '3' &&
-                            board[i + 2][j] === '3' &&
-                            board[i + 3][j] === '1' &&
-                            i >= 0 &&
-                            i + 3 < rows &&
-                            j >= 0 &&
-                            j < cols
-                        ) {
-                            // Check if the cell to the right is unopened
-                            if (board[i][j + 1] === '-' && board[i + 1][j + 1] === '-' && board[i + 2][j + 1] === '-' && board[i + 3][j + 1] === '-') {
-                                // Check if the cells to the left of 2, 3, 3, 1 are revealed, flagged, revealed, revealed, revealed respectively
-                                if (
-                                    board[i][j - 1] !== '-' && board[i][j - 1] !== 'F'
-                                    && board[i + 1][j - 1] === 'F'
-                                    && board[i + 2][j - 1] !== '-' && board[i + 2][j - 1] !== 'F'
-                                    && board[i + 3][j - 1] !== '-' && board[i + 3][j - 1] !== 'F'
-                                ) {
-                                    const toFlag = [[i + 1, j + 1], [i + 2, j + 1]];
-                                    if (toFlag.length === 2) {
-                                        move = { type: 'flag', cells: toFlag };
-                                        return move;
-                                    }
-                                }
-                            }
-                        }
+                
+           
   
             // reveal if one of the adj cells is empty (its a number so its safe)
             else
