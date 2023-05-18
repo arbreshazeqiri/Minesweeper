@@ -297,6 +297,28 @@ const Solver = (inputBoard) => {
 
                 }
             }
+            //1-2-2-2 pattern
+                else if (board[i][j] === '1' && board[i][j + 1] === '2' && board[i][j + 2] === '2' && board[i][j + 3] === '2' && i >= 0 && i < rows && j >= 0 && j + 3 < cols) {
+                    const extraNeighbors = getNeighbors(i, j + 3, rows, cols);
+                        // e shtojme kushtin nqs 1shi ska kojshi t djathte ose kojshia i vet i djatht osht i qelt
+                        if (board[i][j - 1] != '-' && board[i][j - 1] != 'F') {
+                            //nqs nalt jon tpaqelt
+                            if (board[i - 1][j] === '-' && board[i - 1][j + 1] === '-' && board[i - 1][j + 2] === '-' && board[i - 1][j + 3] === '-') {
+                                // nqs poshte tyne jon empty e per 2shin poshte mu kon i qelt
+                                if (board[i + 1][j] === 'E' && board[i + 1][j + 1] === 'E' && board[i + 1][j + 2] === 'E' && board[i + 1][j + 3] !== '-') {
+                                    // nqs 2shi e ka ni kojshi flagged
+                                    if (extraNeighbors.filter((neighbor) => board[neighbor[0]][neighbor[1]] === 'F').length === 1) {
+                                        const toFlag = [[i - 1, j + 1], [i - 1, j + 2]];
+                                        if (toFlag.length === 2) {
+                                            move = { type: 'flag', cells: toFlag }
+                                            return move
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
             // reveal if one of the adj cells is empty (its a number so its safe)
             else
                 if (board[i][j] === '-') {
