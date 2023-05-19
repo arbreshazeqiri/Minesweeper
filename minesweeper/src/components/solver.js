@@ -308,6 +308,17 @@ const Solver = (inputBoard) => {
                 }
         }
     }
+    //2-2-2 corner
+            else if (board[i][j] === 2 && board[i][j + 1] === 2 && board[i + 1][j + 1] === 2) {
+                //nqs nalt edhe anash jon unopened
+                if (board[i - 1][j] === '-' && board[i - 1][j + 1] === '-' && board[i - 1][j + 2] === '-' && board[i][j + 2] === '-' && board[i + 1][j + 2] === '-') {
+                    //nqs poshte 2shit tpare osht i thate
+                    if (board[i - 1][j] === 'E') {
+                        move = { type: 'reveal', cells: [[i - 1, j + 2]] }
+                        return move;
+                    }
+                }
+            }
 
     // // If there are no empty cells adjacent to a number, choose an empty cell at random
     // if (!move) {
