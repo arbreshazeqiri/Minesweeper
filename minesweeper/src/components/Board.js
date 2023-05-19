@@ -167,15 +167,17 @@ const Board = () => {
             else revealCellDFS(row, col)
             // check if player wins
             let cellAction = Solver(board)
-            if (!cellAction) {
-                console.log(cellAction)
+            if (!cellAction && !toast.isActive('nomoves')) {
                 toast({
+                    id: 'nomoves',
                     title: 'Solver cannot detect any more patterns. Try to open a cell randomly.',
                     status: 'info',
                 })
             }
-            if (cellAction)
+            if (cellAction) {
+                toast.closeAll()
                 console.log(cellAction)
+            }
             if (cellAction && cellAction?.type === 'flag') {
                 cellAction.cells.forEach(tupple => {
                     board[tupple[0]][tupple[1]].isFlagged = true
@@ -235,7 +237,8 @@ const Board = () => {
                 setBoard(newBoard);
                 // if the cell has count 0, add adjacent cells to queue
                 if (cell.count === 0) {
-                    console.log(row + " " + col)
+                    // test BFS
+                    // console.log(row + " " + col)
                     for (let i = Math.max(row - 1, 0); i <= Math.min(row + 1, rows - 1); i++) {
                         for (let j = Math.max(col - 1, 0); j <= Math.min(col + 1, cols - 1); j++) {
                             if (i !== row || j !== col) {
@@ -271,7 +274,8 @@ const Board = () => {
                 setBoard(newBoard);
                 // if the cell has count 0, add adjacent cells to stack
                 if (cell.count === 0) {
-                    console.log(row + " " + col)
+                    // test DFS
+                    //  console.log(row + " " + col)
                     for (let i = Math.max(row - 1, 0); i <= Math.min(row + 1, rows - 1); i++) {
                         for (let j = Math.max(col - 1, 0); j <= Math.min(col + 1, cols - 1); j++) {
                             if (i !== row || j !== col) {
@@ -379,6 +383,7 @@ const Board = () => {
                         setTimer(0)
                         setGameOver(false)
                         setWin(false)
+                        toast.closeAll()
                     }}>
                         <Text padding="0.1em" fontSize="3.5em" color="black" borderLeft="4px solid white" borderTop="4px solid white" borderRight="4px solid #808080" borderBottom="4px solid #808080" as={gameOver ? BsEmojiDizzy : win ? BsEmojiSunglasses : BsEmojiSmile} />
                     </Box>
