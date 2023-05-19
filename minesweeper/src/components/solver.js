@@ -621,6 +621,34 @@ const Solver = (inputBoard) => {
             }
         }
     }
+    // 2-3-3-1 pattern vertical
+            else if (
+                board[i][j] === '2' &&
+                board[i + 1][j] === '3' &&
+                board[i + 2][j] === '3' &&
+                board[i + 3][j] === '1' &&
+                i >= 0 &&
+                i + 3 < rows &&
+                j >= 0 &&
+                j < cols
+            ) {
+                
+                if (board[i][j + 1] === '-' && board[i + 1][j + 1] === '-' && board[i + 2][j + 1] === '-' && board[i + 3][j + 1] === '-') {
+                   
+                    if (
+                        board[i][j - 1] !== '-' && board[i][j - 1] !== 'F'
+                        && board[i + 1][j - 1] === 'F'
+                        && board[i + 2][j - 1] !== '-' && board[i + 2][j - 1] !== 'F'
+                        && board[i + 3][j - 1] !== '-' && board[i + 3][j - 1] !== 'F'
+                    ) {
+                        const toFlag = [[i + 1, j + 1], [i + 2, j + 1]];
+                        if (toFlag.length === 2) {
+                            move = { type: 'flag', cells: toFlag };
+                            return move;
+                        }
+                    }
+                }
+            }
 
 
 
@@ -668,5 +696,6 @@ const Solver = (inputBoard) => {
         return neighbors;
     }
 }
+
              
 export default Solver
