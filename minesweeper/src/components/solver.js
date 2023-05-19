@@ -316,6 +316,38 @@ const Solver = (inputBoard) => {
                     }
 
                 }
+
+            }//2-3-3-1 horizontal
+            else if (
+                board[i][j] === '2' &&
+                board[i][j + 1] === '3' &&
+                board[i][j + 2] === '3' &&
+                board[i][j + 3] === '1' &&
+                i >= 0 &&
+                i < rows &&
+                j >= 0 &&
+                j + 3 < cols
+            ) {
+                // Check if the cell below is unopened
+                if (board[i + 1][j] === '-' && board[i + 1][j + 1] === '-' && board[i + 1][j + 2] === '-' && board[i + 1][j + 3] === '-') {
+                    // Check if the cells above 2, 3, 3, 1 are revealed, flagged, revealed, revealed, revealed respectively
+                    if (
+                        board[i - 1][j] !== '-' && board[i - 1][j] !== 'F'
+                        && board[i - 1][j + 1] === 'F'
+                        && board[i - 1][j + 2] !== '-' && board[i - 1][j + 2] !== 'F'
+                        && board[i - 1][j + 3] !== '-' && board[i - 1][j + 3] !== 'F'
+                    ) {
+                        const toFlag = [[i + 1, j + 1], [i + 1, j + 2]];
+                        if (toFlag.length === 2) {
+                            move = { type: 'flag', cells: toFlag };
+                            return move;
+                        }
+                    }
+                }
+            }
+                
+           
+  
                 //patern 2-2-2
             }else if (board[i][j] === '2' && board[i][j + 1] === '2' && board[i][j + 2] === '2' && i >= 0 && i < rows && j >= 0 && j + 2 < cols) {
                 const firstNeighbors = getNeighbors(i, j, rows, cols);
