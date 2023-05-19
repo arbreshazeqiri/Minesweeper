@@ -274,36 +274,8 @@ const Solver = (inputBoard) => {
                         }
                     }
                 }
-
-                ///////////////
-                //e shtojna kushtin nqs 1shi ska kojshi t djatht ose nese ka duhet me kane i qelt 
-                else if (board[i][j] === '1' && board[i][j - 1] != '-' && board[i][j - 1] != 'F' && board[i][j + 1] === '1' && i >= 0 && i < rows && j >= 0 && j + 1 < cols) {
-                    // nqs qelizat poshte 11-shit jon empty
-                    if (board[i + 1][j] === 'E' && board[i + 1][j + 1] === 'E') {
-                        // nqs qelizat nalt 11-shit sjon qel hala
-                        if (board[i - 1][j] === '-' && board[i - 1][j + 1] === '-' && board[i - 1][j + 2] === '-') {
-                            const toReveal = [[i - 1, j + 2]];
-                            if (toReveal.length === 1) {
-                                move = { type: 'reveal', cells: toReveal }
-                                return move
-                            }
-                        }
-                    }
-                    // nqs qelizat nalte 11shit jon empty
-                    if (board[i - 1][j] === 'E' && board[i - 1][j + 1] === 'E') {
-                        // nqs qelizat nalt 11-shit sjon qel hala
-                        if (board[i + 1][j] === '-' && board[i + 1][j + 1] === '-' && board[i + 1][j + 2] === '-') {
-                            const toReveal = [[i + 1, j + 2]];
-                            if (toReveal.length === 1) {
-                                move = { type: 'reveal', cells: toReveal }
-                                return move
-                            }
-                        }
-                    }
-                }
-                /////////////////
                 // nqs pas jon empty
-                if (firstNeighbors.filter(neighbor => neighbor[0] === i && neighbor[1] === j + 1 && board[neighbor[0]][neighbor[1]] === 'E') && middleNeighbors.filter(neighbor => neighbor[0] === i + 1 && neighbor[1] === j + 1 && board[neighbor[0]][neighbor[1]] === 'E') && lastNeighbors.filter(neighbor => neighbor[0] === i + 2 && neighbor[1] === j + 1 && board[neighbor[0]][neighbor[1]] === 'E')) {
+                else if (firstNeighbors.filter(neighbor => neighbor[0] === i && neighbor[1] === j + 1 && board[neighbor[0]][neighbor[1]] === 'E') && middleNeighbors.filter(neighbor => neighbor[0] === i + 1 && neighbor[1] === j + 1 && board[neighbor[0]][neighbor[1]] === 'E') && lastNeighbors.filter(neighbor => neighbor[0] === i + 2 && neighbor[1] === j + 1 && board[neighbor[0]][neighbor[1]] === 'E')) {
                     // nqs para tyne jon tpaqelt
                     if (firstNeighbors.filter(neighbor => neighbor[0] === i && neighbor[1] === j - 1 && (board[neighbor[0]][neighbor[1]] === '-')).length === 1 && middleNeighbors.filter(neighbor => neighbor[0] === i + 1 && neighbor[1] === j - 1 && (board[neighbor[0]][neighbor[1]] === '-')).length === 1 && lastNeighbors.filter(neighbor => neighbor[0] === i + 2 && neighbor[1] === j - 1 && (board[neighbor[0]][neighbor[1]] === '-')).length === 1) {
                         const toFlag = firstNeighbors.filter(neighbor => neighbor[0] === i && neighbor[1] === j - 1 && (board[neighbor[0]][neighbor[1]] === '-'))
@@ -317,7 +289,62 @@ const Solver = (inputBoard) => {
 
                 }
 
-            }//2-3-3-1 horizontal
+            }
+            // 1-1 horizontal
+            //e shtojna kushtin nqs 1shi ska kojshi t djatht ose nese ka duhet me kane i qelt 
+            else if (board[i][j] === '1' && board[i][j - 1] !== '-' && board[i][j - 1] !== 'F' && board[i][j + 1] === '1' && i >= 0 && i < rows && j >= 0 && j + 1 < cols) {
+                console.log('1-1 horizontal');
+                // nqs qelizat poshte 11-shit jon empty
+                if (board[i + 1][j] === 'E' && board[i + 1][j + 1] === 'E') {
+                    // nqs qelizat nalt 11-shit sjon qel hala
+                    if (board[i - 1][j] === '-' && board[i - 1][j + 1] === '-' && board[i - 1][j + 2] === '-') {
+                        const toReveal = [[i - 1, j + 2]];
+                        if (toReveal.length === 1) {
+                            move = { type: 'reveal', cells: toReveal }
+                            return move
+                        }
+                    }
+                }
+                // nqs qelizat nalte 11shit jon empty
+                if (board[i - 1][j] === 'E' && board[i - 1][j + 1] === 'E') {
+                    // nqs qelizat poshte 11-shit sjon qel hala
+                    if (board[i + 1][j] === '-' && board[i + 1][j + 1] === '-' && board[i + 1][j + 2] === '-') {
+                        const toReveal = [[i + 1, j + 2]];
+                        if (toReveal.length === 1) {
+                            move = { type: 'reveal', cells: toReveal }
+                            return move
+                        }
+                    }
+                }
+            }
+            //1-1 vertikal <-    ->
+            //e shtojna kushtin nqs 1shi ska kojshi t poshtem ose nese ka duhet me kane i qelt 
+            else if (board[i][j] === '1' && board[i + 1][j] !== '-' && board[i + 1][j] !== 'F' && board[i - 1][j] === '1' && i - 2 >= 0 && i + 1 < rows && j >= 0 && j < cols) {
+                // nqs qelizat djathtas 11-shit jon empty
+                if (board[i][j + 1] === 'E' && board[i - 1][j + 1] === 'E') {
+                    // nqs qelizat majtas 11-shit sjon qel hala
+                    if (board[i][j - 1] === '-' && board[i - 1][j - 1] === '-' && board[i - 2][j - 1] === '-') {
+                        const toReveal = [[i - 2, j - 1]];
+                        if (toReveal.length === 1) {
+                            move = { type: 'reveal', cells: toReveal }
+                            return move
+                        }
+                    }
+                }
+                // nqs qelizat majtas 11shit jon empty
+                if (board[i][j - 1] === 'E' && board[i - 1][j - 1] === 'E') {
+                    // nqs qelizat djathtas 11-shit sjon qel hala
+                    if (board[i][j + 1] === '-' && board[i - 1][j + 1] === '-' && board[i - 2][j + 1] === '-') {
+                        const toReveal = [[i - 2, j + 1]];
+                        if (toReveal.length === 1) {
+                            move = { type: 'reveal', cells: toReveal }
+                            return move
+                        }
+                    }
+                }
+            }
+
+            //2-3-3-1 horizontal
             else if (
                 board[i][j] === '2' &&
                 board[i][j + 1] === '3' &&
