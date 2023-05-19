@@ -684,22 +684,6 @@ const Solver = (inputBoard) => {
                     }
                 }
 
-
-
-            // // If there are no empty cells adjacent to a number, choose an empty cell at random
-            // if (!move) {
-            //     const emptyCells = [];
-            //     for (let i = 0; i < rows; i++) {
-            //         for (let j = 0; j < cols; j++) {
-            //             if (board[i][j] === 'E') {
-            //                 emptyCells.push([i, j]);
-            //             }
-            //         }
-            //     }
-            //     const randomIndex = Math.floor(Math.random() * emptyCells.length);
-            //     move = emptyCells[randomIndex];
-            // }
-
             function getNeighbors(i, j, rows, cols) {
                 const deltas = [-1, 0, 1];
                 const neighbors = [];
