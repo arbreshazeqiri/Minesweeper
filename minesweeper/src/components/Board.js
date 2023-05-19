@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Text, Button, Box, Flex, Tooltip, useToast } from '@chakra-ui/react'
+import React, { useState, useEffect, useRef } from 'react';
+import { Text, Box, Flex, Tooltip, useToast } from '@chakra-ui/react'
 import { BsEmojiSmile, BsEmojiSunglasses, BsEmojiDizzy } from 'react-icons/bs'
 
 import Solver from './solver.js'
 import loseAudio from './../assets/Lose.mp3';
 import winAudio from './../assets/Win.mp3';
+import flagAudio from './../assets/Flag.mp3';
+import emptyAudio from './../assets/Empty.mp3';
 import one from './../assets/1.mp3';
 import two from './../assets/2.mp3';
 import three from './../assets/3.mp3';
@@ -43,8 +45,8 @@ const Board = () => {
 
 
     //initialize sound
-    const playLose = () => new Audio(loseAudio).play();
-    const playWin = () => new Audio(winAudio).play();
+    const playFlag = () => new Audio(flagAudio).play();
+    const playEmpty = () => new Audio(emptyAudio).play();
     const playOne = () => new Audio(one).play();
     const playTwo = () => new Audio(two).play();
     const playThree = () => new Audio(three).play();
@@ -53,6 +55,35 @@ const Board = () => {
     const playSix = () => new Audio(six).play();
     const playSeven = () => new Audio(seven).play();
     const playEight = () => new Audio(eight).play();
+
+    const loseAudioRef = useRef(null);
+    const winAudioRef = useRef(null);
+
+    const playLose = () => {
+        loseAudioRef.current = new Audio(loseAudio);
+        loseAudioRef.current.loop = true;
+        loseAudioRef.current.play();
+    };
+
+    const playWin = () => {
+        winAudioRef.current = new Audio(winAudio);
+        winAudioRef.current.loop = true;
+        winAudioRef.current.play();
+    }
+
+    const stopLose = () => {
+        if (loseAudioRef.current) {
+            loseAudioRef.current.pause();
+            loseAudioRef.current.currentTime = 0;
+        }
+    };
+
+    const stopWin = () => {
+        if (winAudioRef.current) {
+            winAudioRef.current.pause();
+            winAudioRef.current.currentTime = 0;
+        }
+    };
 
     // generate the board with mines and counts
     const generateBoard = (rows, cols, mines) => {
@@ -115,8 +146,6 @@ const Board = () => {
         setBoard(generatedBoard);
     }, [level, algorithm, rows, cols, mines])
 
-    useEffect(() => checkWin(), [flagsCount])
-
     useEffect(() => {
         if (gameOver || win) {
             return;
@@ -130,14 +159,6 @@ const Board = () => {
         };
     }, [timer, gameOver, win])
 
-    // handle submit
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setRows(e.target[1].value)
-        setCols(e.target[0].value)
-        setMines(e.target[2].value)
-    };
-
     // handle cell click
     const handleClick = (row, col) => {
         if (gameOver || win) {
@@ -146,11 +167,11 @@ const Board = () => {
 
         // if the clicked cell is a mine, game over
         if (board[row][col].isMine) {
-            // playLose()
             if (revealedCount === 0) {
                 setBoard(generateBoard(rows, cols, mines))
                 return
             }
+            playLose()
             setGameOver(true);
             board[row][col].isRed = true;
 
@@ -167,17 +188,20 @@ const Board = () => {
             else revealCellDFS(row, col)
             // check if player wins
             let cellAction = Solver(board)
-            if (!cellAction) {
-                console.log(cellAction)
+            if (!cellAction && !toast.isActive('nomoves')) {
                 toast({
+                    id: 'nomoves',
                     title: 'Solver cannot detect any more patterns. Try to open a cell randomly.',
                     status: 'info',
                 })
             }
-            if (cellAction)
+            if (cellAction) {
+                toast.closeAll()
                 console.log(cellAction)
+            }
             if (cellAction && cellAction?.type === 'flag') {
                 cellAction.cells.forEach(tupple => {
+                    playFlag()
                     board[tupple[0]][tupple[1]].isFlagged = true
                 })
                 setFlagsCount(flagsCount + cellAction.cells.length)
@@ -221,8 +245,6 @@ const Board = () => {
             if (!cell.isRevealed) {
                 // reveal the cell
                 const newBoard = [...board];
-                cell.isRevealed = true;
-                setRevealedCount(revealedCount + 1)
                 if (cell.count === 1) playOne()
                 else if (cell.count === 2) playTwo()
                 else if (cell.count === 3) playThree()
@@ -232,10 +254,14 @@ const Board = () => {
                 else if (cell.count === 7) playSeven()
                 else if (cell.count === 8) playEight()
                 else;
+                cell.isRevealed = true;
+                setRevealedCount(revealedCount + 1)
                 setBoard(newBoard);
                 // if the cell has count 0, add adjacent cells to queue
                 if (cell.count === 0) {
-                    console.log(row + " " + col)
+                    playEmpty()
+                    // test BFS
+                    // console.log(row + " " + col)
                     for (let i = Math.max(row - 1, 0); i <= Math.min(row + 1, rows - 1); i++) {
                         for (let j = Math.max(col - 1, 0); j <= Math.min(col + 1, cols - 1); j++) {
                             if (i !== row || j !== col) {
@@ -257,21 +283,23 @@ const Board = () => {
             if (!cell.isRevealed) {
                 // reveal the cell
                 const newBoard = [...board];
+                if (cell.count === 1) playOne()
+                else if (cell.count === 2) playTwo()
+                else if (cell.count === 3) playThree()
+                else if (cell.count === 4) playFour()
+                else if (cell.count === 5) playFive()
+                else if (cell.count === 6) playSix()
+                else if (cell.count === 7) playSeven()
+                else if (cell.count === 8) playEight()
+                else;
                 cell.isRevealed = true;
                 setRevealedCount(revealedCount + 1);
-                if (cell.count === 1) playOne();
-                else if (cell.count === 2) playTwo();
-                else if (cell.count === 3) playThree();
-                else if (cell.count === 4) playFour();
-                else if (cell.count === 5) playFive();
-                else if (cell.count === 6) playSix();
-                else if (cell.count === 7) playSeven();
-                else if (cell.count === 8) playEight();
-                else;
                 setBoard(newBoard);
                 // if the cell has count 0, add adjacent cells to stack
                 if (cell.count === 0) {
-                    console.log(row + " " + col)
+                    playEmpty()
+                    // test DFS
+                    //  console.log(row + " " + col)
                     for (let i = Math.max(row - 1, 0); i <= Math.min(row + 1, rows - 1); i++) {
                         for (let j = Math.max(col - 1, 0); j <= Math.min(col + 1, cols - 1); j++) {
                             if (i !== row || j !== col) {
@@ -299,7 +327,7 @@ const Board = () => {
         // check if the player has revealed all non-mine cells
         if (flaggedCount === mines) {
             setWin(true);
-            // playWin()
+            playWin()
         }
     };
 
@@ -340,30 +368,15 @@ const Board = () => {
                 <Flex justifyContent={'space-between'} gap="1em">
                     <Text onClick={() => {
                         setLevel('beginner')
-                        // setIsCustom(false)
                     }} cursor="pointer" fontWeight={level === 'beginner' && 'bold'}>Beginner</Text>
                     <Text onClick={() => {
                         setLevel('intermediate')
-                        // setIsCustom(false)
                     }
                     } cursor="pointer" fontWeight={level === 'intermediate' && 'bold'}>Intermediate</Text>
                     <Text onClick={() => {
                         setLevel('expert')
-                        // setIsCustom(false)
                     }} cursor="pointer" fontWeight={level === 'expert' && 'bold'}>Expert</Text>
-                    {/* <Text cursor="pointer" fontWeight={isCustom && 'bold'}>Custom</Text> */}
                 </Flex>
-                {/* {isCustom && <Flex>
-                    <form onSubmit={handleSubmit}>
-                        <label htmlFor="width" css={{ border: '2px solid black' }}>Width:</label>
-                        <input style={{ border: '1px solid black', width: '2em' }} type="number" id="width" />
-                        <label htmlFor="height">Height:</label>
-                        <input style={{ border: '1px solid black', width: '2em' }} type="number" id="height" />
-                        <label htmlFor="customMines">Mines:</label>
-                        <input style={{ border: '1px solid black', width: '2em' }} type="number" id="customMines" />
-                        <Button type="submit">Update board</Button>
-                    </form>
-                </Flex>} */}
                 <Flex justifyContent={'space-between'} gap="1em">
                     <Text onClick={() => setAlgorithm('BFS')} fontWeight={algorithm === 'BFS' && 'bold'} cursor="pointer">Breadth-First Search</Text>
                     <Text onClick={() => setAlgorithm('DFS')} fontWeight={algorithm === 'DFS' && 'bold'} cursor="pointer">Depth-First Search</Text>
@@ -379,6 +392,9 @@ const Board = () => {
                         setTimer(0)
                         setGameOver(false)
                         setWin(false)
+                        stopLose()
+                        stopWin()
+                        toast.closeAll()
                     }}>
                         <Text padding="0.1em" fontSize="3.5em" color="black" borderLeft="4px solid white" borderTop="4px solid white" borderRight="4px solid #808080" borderBottom="4px solid #808080" as={gameOver ? BsEmojiDizzy : win ? BsEmojiSunglasses : BsEmojiSmile} />
                     </Box>
