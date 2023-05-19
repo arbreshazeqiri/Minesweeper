@@ -223,6 +223,7 @@ const Solver = (inputBoard) => {
                     return move
                 }
             }
+
             //1-2-1 pattern horizontal
             else if (board[i][j] === '1' && board[i][j + 1] === '2' && board[i][j + 2] === '1' && i >= 0 && i < rows && j >= 0 && j + 2 < cols) {
                 const firstNeighbors = getNeighbors(i, j, rows, cols);
@@ -470,6 +471,53 @@ const Solver = (inputBoard) => {
 
                 }
             }
+            else if (
+                board[i][j - 1] !== '-' &&
+                board[i][j - 1] !== 'F' &&
+                board[i][j + 1] === '3' &&
+                board[i][j + 2] === '2' &&
+                board[i][j + 3] === '3' &&
+                board[i][j + 4] === '1' &&
+                board[i][j + 5] !== '-' &&
+                board[i][j + 5] !== 'F' &&
+                i >= 0 &&
+                i < rows &&
+                j - 1 >= 0 &&
+                j + 5 < cols
+              ) {
+                // Check if the cells below the 1-3-2-3-1 pattern are as specified in layout
+                if (
+                  board[i + 1][j] !== '-' &&
+                  board[i + 1][j] !== 'F' &&
+                  board[i + 1][j + 1] !== '-' &&
+                  board[i + 1][j + 1] !== 'F' &&
+                  board[i + 1][j + 2] === 'F' &&
+                  board[i + 1][j + 3] !== '-' &&
+                  board[i + 1][j + 3] !== 'F' &&
+                  board[i + 1][j + 4] !== '-' &&
+                  board[i + 1][j + 4] !== 'F'
+              
+                ) {
+                  // Check if the cells above the 1-3-2-3-1 pattern have the specified layout
+                  if (
+                    board[i - 1][j] === '-' &&
+                    board[i - 1][j + 1] === '-' &&
+                    board[i - 1][j + 2] === '-' && 
+                    board[i - 1][j + 3] === '-' &&
+                    board[i - 1][j + 4] === '-'
+                  ) {
+                    const toFlag = [
+                      [i - 1, j],
+                      [i - 1, j + 2],
+                      [i - 1, j + 4]
+                    ];
+                    if (toFlag.length === 3) {
+                      move = { type: 'flag', cells: toFlag };
+                      return move;
+                    }
+                  }
+                }
+              }
             // reveal if one of the adj cells is empty (its a number so its safe)
             else
             if (board[i][j] === '-') {
