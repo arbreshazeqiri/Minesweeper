@@ -345,6 +345,35 @@ const Solver = (inputBoard) => {
                     }
                 }
             }
+
+            //horizontal per 2-4-2
+            else if (board[i][j] === '2' && board[i][j + 1] === '4' && board[i][j + 2] === '2' && i >= 0 && i < rows && j >= 0 && j + 2 < cols) {
+                // Check if the cells below the 2-4-2 pattern are closed
+                if (board[i + 1][j] === '-' && board[i + 1][j + 1] === '-' && board[i + 1][j + 2] === '-') {
+                    // Check if the cells above the 2-4-2 pattern have the specified layout
+                    if (board[i - 1][j] === 'F' && board[i - 1][j + 1] !== '-' && board[i-1][j+1] !== 'F' && board[i - 1][j + 2] === 'F') {
+                        const toFlag = [[i + 1, j], [i + 1, j + 2]];
+                        if (toFlag.length === 2) {
+                            move = { type: 'flag', cells: toFlag };
+                            return move;
+                        }
+                    }
+                }
+            }
+            //vertikal per 2-4-2
+            else if (board[i][j] === '2' && board[i+1][j] === '4' && board[i+2][j] === '2' && i >= 0 && i + 2 < rows && j >= 0 && j < cols) {
+                // Check if the cells to the right of the 2-4-2 pattern are closed
+                if (board[i][j+1] === '-' && board[i + 1][j + 1] === '-' && board[i + 2][j + 1] === '-') {
+                    // Check if the cells to the left of 2-4-2 pattern have the specified layout
+                    if (board[i][j-1] === 'F' && board[i+1][j -1] !== '-' && board[i+1][j-1] !== 'F' && board[i+2][j -1] === 'F') {
+                        const toFlag = [[i, j - 1],[i + 2, j -1]];
+                        if (toFlag.length === 2) {
+                            move = { type: 'flag', cells: toFlag };
+                            return move;
+                        }
+                    }
+                }
+            }
                 
            
   
@@ -578,6 +607,7 @@ const Solver = (inputBoard) => {
                   }
                 }
               }
+
             // reveal if one of the adj cells is empty (its a number so its safe)
             else
             if (board[i][j] === '-') {
